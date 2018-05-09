@@ -1,0 +1,58 @@
+pump_eff=xlsread('pump_efficiency.xlsx');
+chiller_eff=xlsread('chiller_efficiency.xlsx');
+% [chill_eff]
+%% input
+flow = 450;%gpm 
+head = 40;%ft
+Q=100000;%load of building btu 360ton
+Q_designed= 180000% btu
+n_pump=3;
+Cp=1% btu/(lbs*F)
+eva_T=50;
+%% calc eff
+%at load
+mass=flow*8.335;%mass flow rate lbs
+dT = Q/Cp/mass;% at load
+%at chiller 
+percent_load=Q/Q_designed%percent load of chiller
+dT_eva = dT;%some function: using the same as delta T at load rn
+cond_T = eva_T+dT_eva;%dT %change this
+%pick a condenser water entering T, compare E with before
+%or after change
+%use designed leaving condensor water T 
+
+eff_pump   = get_eff(flow, head,pump_eff)
+eff_chiller= get_eff(percent_load*100, cond_T, chiller_eff)
+
+%% energy
+e_pump=745.7*n_pump*flow*head/3960/eff_pump%watts 745watt=1hp
+e_chiller=dT_chiller*percent_load*100000/eff_chiller% need actual equation
+%dt 
+scatter([0 e_pump], [0 e_chiller])
+xlabel('Energy Pump');
+ylabel('Energy Chiller');
+
+
+function eff=get_eff(flow,head,pump_eff)
+idx_flow = find(pump_eff(1,:)>flow,1);
+flow_hi =pump_eff(1,idx_flow);
+flow_low=pump_eff(1,idx_flow-1);
+
+idx_head = find(pump_eff(:,1)>head,1);
+head_hi =pump_eff(idx_head,1);
+head_low=pump_eff(idx_head-1,1);
+
+percentage_flow = (flow-flow_low)/(flow_hi-flow_low);
+percentage_head = (head-head_low)/(head_hi-head_low);
+
+eff_section = pump_eff(idx_head-1:idx_head,idx_flow-1:idx_flow);
+low=eff_section(1,1)+percentage_flow*(eff_section(1,2)-eff_section(1,1));
+hi =eff_section(2,1)+percentage_flow*(eff_section(2,2)-eff_section(2,1));
+eff=low+percentage_head*(hi-low)
+
+end
+
+
+
+
+
