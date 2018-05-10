@@ -66,7 +66,7 @@ for j= 1:length(CHWSTSP_vec(i,:))
     Flow       = AHU6_Load/(CHWRT_vec(i,j)-CHWSTSP)/500;
     Total_Flow= Flow/0.2;
     t_flow(i,j) =Total_Flow;
-    Head_Building= 0.00000551724096337*Total_Flow^2+0.00595241445861*Total_Flow+15
+    Head_Building= 0.0000109*Total_Flow^2+0.00595241445861*Total_Flow+15
     
     t_head (i,j)=Head_Building;
     
@@ -77,8 +77,10 @@ for j= 1:length(CHWSTSP_vec(i,:))
     if rpm_mat(flow_idx,head_idx) > 1780
         eff_pump(num)=0.00001;
     else
+        
         eff_pump(num)= eff_pump_mat(flow_idx,head_idx);
         t_eff_pump(i,j,num)   = eff_pump(num);
+        rpm_result(i,j,num)          = rpm_mat(flow_idx,head_idx);
         
     end
     
@@ -94,25 +96,6 @@ for j= 1:length(CHWSTSP_vec(i,:))
     
 end
 
-
-%figure(3);plot(CHWRT__assumeed_vec,CHWRT_vec); axis equal
-% eff_pump   = get_eff(flow, head,pump_eff)
-% 
-% cond_T = eva_T+dT_eva;%dT %change this
-% %pick a condenser water entering T, compare E with before
-% %or after change
-% %use designed leaving condensor water T 
-% %make a map with lift & percent load chiller
-% 
-% eff_chiller= get_eff(percent_load*100, cond_T, chiller_eff)
-% %use kw/ton map
-% %% energy
-% e_pump=745.7*n_pump*flow*head/3960/eff_pump%watts 745watt=1hp
-% e_chiller=dT_chiller*percent_load*100000/eff_chiller% need actual equation
-% %dt  %use kw/ton map
-% scatter([0 e_pump], [0 e_chiller])
-% xlabel('Energy Pump');
-% ylabel('Energy Chiller');
 end
 total_power=kw_chiller_final+kw_pump;
 
